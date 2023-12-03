@@ -1,10 +1,10 @@
 from functools import reduce
-from typing import Tuple, Any
 
-numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-non_symbol_list = ['.'] + numbers
-symbol_list = []
 char_matrix = []
+
+
+def is_symbol(char) -> bool:
+    return not char.isdigit() and char != '.'
 
 
 def build_matrix(file) -> None:
@@ -18,55 +18,55 @@ def build_matrix(file) -> None:
             for char in line:
                 if char == '\n':
                     continue
-                if char not in non_symbol_list and char not in symbol_list:
-                    symbol_list.append(char)
                 line_array.append(char)
             char_matrix.append(line_array)
 
 
-def symbol_adjacent(row, col, symbols: []) -> bool:
+def symbol_adjacent(row, col) -> bool:
     """
     check if a symbol is adjacent to a point, above, below, left, right and diagonal
     :return: Boolean
     """
     adjacent = False
     if row > 0:  # above
-        if char_matrix[row - 1][col] in symbols:
+        if is_symbol(char_matrix[row - 1][col]):
             adjacent = True
     if row < len(char_matrix) - 1:  # below
-        if char_matrix[row + 1][col] in symbols:
+        if is_symbol(char_matrix[row + 1][col]):
             adjacent = True
     if col > 0:  # left
-        if char_matrix[row][col - 1] in symbols:
+        if is_symbol(char_matrix[row][col - 1]):
             adjacent = True
     if col < len(char_matrix[row]) - 1:  # right
-        if char_matrix[row][col + 1] in symbols:
+        if is_symbol(char_matrix[row][col + 1]):
             adjacent = True
     if row > 0 and col > 0:  # diagonal
-        if char_matrix[row - 1][col - 1] in symbols:
+        if is_symbol(char_matrix[row - 1][col - 1]):
             adjacent = True
     if row > 0 and col < len(char_matrix[row]) - 1:  # diagonal
-        if char_matrix[row - 1][col + 1] in symbols:
+        if is_symbol(char_matrix[row - 1][col + 1]):
             adjacent = True
     if row < len(char_matrix) - 1 and col > 0:  # diagonal
-        if char_matrix[row + 1][col - 1] in symbols:
+        if is_symbol(char_matrix[row + 1][col - 1]):
             adjacent = True
     if row < len(char_matrix) - 1 and col < len(char_matrix[row]) - 1:  # diagonal
-        if char_matrix[row + 1][col + 1] in symbols:
+        if is_symbol(char_matrix[row + 1][col + 1]):
             adjacent = True
 
     return adjacent
 
 
-def is_part_of_larger_number(row, col, number_list) -> []:
+def get_entire_number(row, col, number_list) -> []:
     """
     check if a number is part of a larger number, checking left and right sides.
     return the assembled number as a string
-    :param number: []
+    :param col: int
+    :param row: int
+    :param number_list: []
     :return: []
     """
     for i in range(col + 1, len(char_matrix[row])):
-        if char_matrix[row][i] in numbers:
+        if char_matrix[row][i].isdigit():
             number_list.append([row, i])
         else:
             break
@@ -86,14 +86,13 @@ def main():
         col = 0
         while col < len(char_matrix[row]):
             number = []
-            if char_matrix[row][col] in numbers:
+            if char_matrix[row][col].isdigit():
                 number.append([row, col])
             if len(number) > 0:
-                number = is_part_of_larger_number(row, col, number)
+                number = get_entire_number(row, col, number)
                 near_symbol = False
-                for point in number:
-                    [point_row, point_col] = point
-                    if symbol_adjacent(point_row, point_col, symbol_list):
+                for point_row, point_col in number:
+                    if symbol_adjacent(point_row, point_col):
                         near_symbol = True
                 if near_symbol:
                     num = int(reduce(lambda x, y: x + y, [char_matrix[row][col] for row, col in number], ''))
