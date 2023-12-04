@@ -1,5 +1,5 @@
 const std = @import("std");
-const file = @embedFile("sample.txt");
+const file = @embedFile("input2.txt");
 
 const split = std.mem.split;
 const allocator = std.heap.page_allocator;
