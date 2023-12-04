@@ -31,7 +31,7 @@ def score_game(lines):
 
 
 def main():
-    with open('sample4.txt') as f:
+    with open('input4.txt') as f:
         for line in f:
             line = line.strip()
             line = line.strip()

@@ -6,9 +6,9 @@ const allocator = std.heap.page_allocator;
 const whitespace = " \t\n\r";
 
 const CubeValues = struct {
-    red: u8,
-    green: u8,
-    blue: u8,
+    red: u32,
+    green: u32,
+    blue: u32,
 };
 
 const Color = enum {
@@ -44,7 +44,7 @@ fn setColor(s: *CubeValues, color: Color, value: u8) void {
 fn parseGameLine(line: []const u8) !GameRecord {
     var line_split = split(u8, line, ": ");
     _ = (line_split.next() orelse return error.MissingKey)[0..];
-    const raw_values = line_split.next().?;
+    const raw_values = (line_split.next() orelse return error.MissingValues)[0..];
 
     var values = std.ArrayList(CubeValues).init(allocator); // Dereference the pointer here
 
@@ -72,8 +72,8 @@ fn parseGameLine(line: []const u8) !GameRecord {
 }
 
 pub fn main() !void {
-    var total: u8 = 0;
-    var counter: u8 = 1;
+    var total: u32 = 0;
+    var counter: u32 = 1;
     var splits = split(u8, file, "\n");
     const limits = CubeValues{
         .red = 12,
@@ -82,11 +82,10 @@ pub fn main() !void {
     };
 
     while (splits.next()) |line| {
-        const game_line = try parseGameLine(line);
+        const game_line = parseGameLine(line) catch break;
         var count_game_line = true;
         for (game_line.values.items) |cubes| {
-            std.debug.print("Values: {d} {d} {d}\n", .{ cubes.red, cubes.green, cubes.blue });
-            if (limits.red > cubes.red or limits.green > cubes.green or limits.blue > cubes.blue) {
+            if (limits.red < cubes.red or limits.green < cubes.green or limits.blue < cubes.blue) {
                 count_game_line = false;
             }
         }
@@ -97,5 +96,5 @@ pub fn main() !void {
         counter += 1;
     }
 
-    std.debug.print("Total: {}", .{total});
+    std.debug.print("Total: {d}\n", .{total});
 }

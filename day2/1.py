@@ -9,7 +9,7 @@ def main():
     would also have been impossible because the Elf showed you 15 blue cubes at once.
     If you add up the IDs of the games that would have been possible, you get 8.
     """
-    with open('input2.txt', 'r') as f:
+    with open('sample.txt', 'r') as f:
         total = 0
         counter = 1
         cube_limits = {
