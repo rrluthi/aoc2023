@@ -46,7 +46,7 @@ fn parseGameLine(line: []const u8) !GameRecord {
     _ = (line_split.next() orelse return error.MissingKey)[0..];
     const raw_values = (line_split.next() orelse return error.MissingValues)[0..];
 
-    var values = std.ArrayList(CubeValues).init(allocator); // Dereference the pointer here
+    var values = std.ArrayList(CubeValues).init(allocator);
 
     var game_split = split(u8, raw_values, "; ");
     while (game_split.next()) |game_value| {
