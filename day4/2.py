@@ -6,7 +6,7 @@ LINES = {}
 
 @functools.cache
 def process_game(card, game):
-    deck, hand = game.strip().split("|")
+    deck, hand = game.split(" | ")
     deck = list(filter(lambda x: x.isdigit(), deck.split(" ")))
     hand = list(filter(lambda x: x.isdigit(), hand.split(" ")))
 
@@ -34,8 +34,7 @@ def main():
     with open('input4.txt') as f:
         for line in f:
             line = line.strip()
-            line = line.strip()
-            card, game = line.split(":")
+            card, game = line.split(": ")
             card = list(filter(lambda x: x.isdigit(), card.split(" ")))[0]
             LINES.update({card: game})
 
