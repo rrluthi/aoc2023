@@ -40,7 +40,7 @@ def apply_mapping(seed: Seed, maps: List[Map], lowest) -> int:
     for mapping in curr_map.mappings:
 
         if seed.start < mapping.source_start < seed.end:
-            low_seed = Seed(start=seed.start, end=mapping.source_start - 1, steps=seed.steps.copy())
+            low_seed = Seed(start=seed.start, end=mapping.source_start, steps=seed.steps.copy())
             # print("LOW SEED", low_seed)
             lowest = apply_mapping(low_seed, maps, lowest)
             seed.start = mapping.source_start
