@@ -51,7 +51,7 @@ def apply_mapping(seed: Seed, maps: List[Map], lowest) -> int:
             lowest = apply_mapping(high_seed, maps, lowest)
             seed.start = mapping.source_start + mapping.length
 
-        if mapping.source_start <= seed.start < mapping.source_start + mapping.length:
+        if mapping.source_start <= seed.start <= mapping.source_start + mapping.length:
             seed.start += mapping.dest_start - mapping.source_start
             seed.end += mapping.dest_start - mapping.source_start
             break
