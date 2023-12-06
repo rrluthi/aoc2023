@@ -21,6 +21,7 @@ class MapResult:
     name: str
     value: int
 
+
 @dataclass
 class Seed:
     start: int
@@ -45,13 +46,13 @@ def apply_mapping(seed: Seed, maps: List[Map], lowest) -> int:
             lowest = apply_mapping(low_seed, maps, lowest)
             seed.start = mapping.source_start
 
-        if mapping.source_start > seed.end > mapping.source_start + mapping.length:
-            high_seed = Seed(start=mapping.source_start + mapping.length, end=seed.end, steps=seed.steps.copy())
+        if mapping.source_start > seed.end > mapping.source_start + mapping.length - 1:
+            high_seed = Seed(start=mapping.source_start + mapping.length - 1, end=seed.end, steps=seed.steps.copy())
             # print("HIGH SEED", high_seed)
             lowest = apply_mapping(high_seed, maps, lowest)
-            seed.start = mapping.source_start + mapping.length
+            seed.start = mapping.source_start + mapping.length - 1
 
-        if mapping.source_start <= seed.start <= mapping.source_start + mapping.length:
+        if mapping.source_start <= seed.start <= mapping.source_start + mapping.length - 1:
             seed.start += mapping.dest_start - mapping.source_start
             seed.end += mapping.dest_start - mapping.source_start
             break
@@ -108,7 +109,7 @@ def parse_input(f) -> (List[Seed], List[Map]):
 
 
 def main():
-    with open('input5.txt') as f:
+    with open('../day6/input6.txt') as f:
         seeds, mappings = parse_input(f)
         score = get_lowest_location(seeds, mappings)
         print(score)
