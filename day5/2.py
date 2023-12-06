@@ -21,12 +21,14 @@ class MapResult:
     name: str
     before: int
     after: int
+    range: int
 
 
 def counter():
     while True:
         counter.count += 1
         yield counter.count
+
 
 counter.count = 0
 
@@ -59,23 +61,27 @@ def apply_mapping(seed: Seed, maps: List[Map], lowest) -> int:
 
         if seed.start < mapping.source_start < seed.end:
             low_seed = Seed(start=seed.start, end=mapping.source_start, steps=seed.steps.copy())
-            # print("LOW SEED", low_seed)
-            lowest = apply_mapping(low_seed, maps, lowest)
+            print("LOW SEED", low_seed)
             seed.start = mapping.source_start
+            potential_lowest = apply_mapping(low_seed, maps, lowest)
+            if potential_lowest < lowest:
+                lowest = potential_lowest
 
         if mapping.source_start < seed.start < mapping.source_start + mapping.length - 1:
-            high_seed = Seed(start=mapping.source_start + mapping.length - 1, end=seed.end, steps=seed.steps.copy())
-            seed.end = mapping.source_start + mapping.length - 1
-            # print("HIGH SEED", high_seed)
-            lowest = apply_mapping(high_seed, maps, lowest)
+            if seed.end > mapping.source_start + mapping.length:
+                high_seed = Seed(start=mapping.source_start + mapping.length, end=seed.end, steps=seed.steps.copy())
+                print("HIGH SEED", high_seed)
+                seed.end = mapping.source_start + mapping.length - 1
+                potential_lowest = apply_mapping(high_seed, maps, lowest)
+                if potential_lowest < lowest:
+                    lowest = potential_lowest
 
-
-        if mapping.source_start <= seed.start <= mapping.source_start + mapping.length:
+        if mapping.source_start <= seed.start <= mapping.source_start + mapping.length - 1:
             seed.start += mapping.dest_start - mapping.source_start
             seed.end += mapping.dest_start - mapping.source_start
             break
 
-    seed.steps.append(MapResult(name=curr_map.name, before=before, after=seed.start))
+    seed.steps.append(MapResult(name=curr_map.name, before=before, after=seed.start, range=seed.end - seed.start + 1))
     return apply_mapping(seed, maps, lowest)
 
 
@@ -104,7 +110,6 @@ def parse_seeds(seeds: str) -> List[Seed]:
         seed_start = seed_numbers.pop(0)
         length = seed_numbers.pop(0)
         seeds.append(Seed(start=seed_start, end=seed_start + length - 1, steps=[]))
-        print(seeds)
     return seeds
 
 
@@ -128,7 +133,7 @@ def parse_input(f) -> (List[Seed], List[Map]):
 
 
 def main():
-    with open('sample5.txt') as f:
+    with open('input5.txt') as f:
         seeds, mappings = parse_input(f)
         score = get_lowest_location(seeds, mappings)
         print(score)
