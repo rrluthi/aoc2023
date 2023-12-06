@@ -19,17 +19,34 @@ class Map:
 @dataclass
 class MapResult:
     name: str
-    value: int
+    before: int
+    after: int
+
+
+def counter():
+    while True:
+        counter.count += 1
+        yield counter.count
+
+counter.count = 0
 
 
 @dataclass
 class Seed:
+    def __init__(self, start, end, steps):
+        self.id = next(counter())
+        self.start = start
+        self.end = end
+        self.steps = steps
+
+    id: int
     start: int
     end: int
     steps: List[MapResult]
 
 
 def apply_mapping(seed: Seed, maps: List[Map], lowest) -> int:
+    before = seed.start
     if len(seed.steps) == len(maps):
         if seed.start < lowest:
             lowest = seed.start
@@ -46,18 +63,19 @@ def apply_mapping(seed: Seed, maps: List[Map], lowest) -> int:
             lowest = apply_mapping(low_seed, maps, lowest)
             seed.start = mapping.source_start
 
-        if mapping.source_start > seed.end > mapping.source_start + mapping.length - 1:
+        if mapping.source_start < seed.start < mapping.source_start + mapping.length - 1:
             high_seed = Seed(start=mapping.source_start + mapping.length - 1, end=seed.end, steps=seed.steps.copy())
+            seed.end = mapping.source_start + mapping.length - 1
             # print("HIGH SEED", high_seed)
             lowest = apply_mapping(high_seed, maps, lowest)
-            seed.start = mapping.source_start + mapping.length - 1
 
-        if mapping.source_start <= seed.start <= mapping.source_start + mapping.length - 1:
+
+        if mapping.source_start <= seed.start <= mapping.source_start + mapping.length:
             seed.start += mapping.dest_start - mapping.source_start
             seed.end += mapping.dest_start - mapping.source_start
             break
 
-    seed.steps.append(MapResult(curr_map.name, seed.start))
+    seed.steps.append(MapResult(name=curr_map.name, before=before, after=seed.start))
     return apply_mapping(seed, maps, lowest)
 
 
@@ -85,7 +103,8 @@ def parse_seeds(seeds: str) -> List[Seed]:
     while seed_numbers:
         seed_start = seed_numbers.pop(0)
         length = seed_numbers.pop(0)
-        seeds.append(Seed(start=seed_start, end=seed_start + length, steps=[]))
+        seeds.append(Seed(start=seed_start, end=seed_start + length - 1, steps=[]))
+        print(seeds)
     return seeds
 
 
@@ -109,7 +128,7 @@ def parse_input(f) -> (List[Seed], List[Map]):
 
 
 def main():
-    with open('../day6/input6.txt') as f:
+    with open('sample5.txt') as f:
         seeds, mappings = parse_input(f)
         score = get_lowest_location(seeds, mappings)
         print(score)
