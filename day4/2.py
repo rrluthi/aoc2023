@@ -25,7 +25,7 @@ def process_game(card, game):
 def score_game(lines):
     score = 0
     for card, game in lines.items():
-        line_score = process_game(card, game)
+        line_score: int = process_game(card, game)
         score += line_score
     return score
 
