@@ -16,12 +16,20 @@ class Map:
     mappings: List[Mapping]
 
 
-@dataclass
 class MapResult:
+    def __init__(self, name, before, after, range):
+        self.name = name
+        self.before = before
+        self.after = after
+        self.range = range
+
     name: str
     before: int
     after: int
     range: int
+
+    def __repr__(self):
+        return f"{self.name}: {self.before} -> {self.after} (+{self.range})"
 
 
 def counter():
@@ -52,36 +60,39 @@ def apply_mapping(seed: Seed, maps: List[Map], lowest) -> int:
     if len(seed.steps) == len(maps):
         if seed.start < lowest:
             lowest = seed.start
-            print(seed)
+            # print(seed)
         return lowest
 
     curr_map = maps[len(seed.steps)]
 
     for mapping in curr_map.mappings:
+        # print(f"Before step {curr_map.name}: {mapping.source_start}->{mapping.source_start + mapping.length} | {seed.start}->{seed.end} | {mapping.dest_start}->{mapping.dest_start + mapping.length}")
 
         if seed.start < mapping.source_start < seed.end:
             low_seed = Seed(start=seed.start, end=mapping.source_start, steps=seed.steps.copy())
-            print("LOW SEED", low_seed)
+            # print("LOW SEED", low_seed)
             seed.start = mapping.source_start
             potential_lowest = apply_mapping(low_seed, maps, lowest)
             if potential_lowest < lowest:
                 lowest = potential_lowest
 
-        if mapping.source_start < seed.start < mapping.source_start + mapping.length - 1:
+        if mapping.source_start < seed.start < mapping.source_start + mapping.length:
             if seed.end > mapping.source_start + mapping.length:
                 high_seed = Seed(start=mapping.source_start + mapping.length, end=seed.end, steps=seed.steps.copy())
-                print("HIGH SEED", high_seed)
-                seed.end = mapping.source_start + mapping.length - 1
+                # print("HIGH SEED", high_seed)
+                seed.end = mapping.source_start + mapping.length
                 potential_lowest = apply_mapping(high_seed, maps, lowest)
                 if potential_lowest < lowest:
                     lowest = potential_lowest
 
-        if mapping.source_start <= seed.start <= mapping.source_start + mapping.length - 1:
+        if mapping.source_start <= seed.start < mapping.source_start + mapping.length:
             seed.start += mapping.dest_start - mapping.source_start
             seed.end += mapping.dest_start - mapping.source_start
+            # print(f"After step {curr_map.name}: {mapping.source_start}<->{mapping.source_start + mapping.length} | {seed.start}<->{seed.end} | {mapping.dest_start}<->{mapping.dest_start + mapping.length}")
+
             break
 
-    seed.steps.append(MapResult(name=curr_map.name, before=before, after=seed.start, range=seed.end - seed.start + 1))
+    seed.steps.append(MapResult(name=curr_map.name, before=before, after=seed.start, range=seed.end - seed.start))
     return apply_mapping(seed, maps, lowest)
 
 
