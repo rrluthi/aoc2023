@@ -40,9 +40,6 @@ class Hand:
     bid: int
     type: HandType
 
-    def __repr__(self):
-        return f"Hand: value = {calc_value(self)}, type={self.type.name}, bid={self.bid}"
-
 
 def calc_value(hand) -> str:
     return str(hand.type.value) + ''.join([card.value for card in hand.cards])
@@ -100,8 +97,11 @@ def parse_input(f) -> List[Hand]:
     hands = []
     for line in f:
         line = line.strip()
+        # split the line into the hand and the bid
         [hand_str, bid] = line.split(' ')
+        # convert the hand string into a list of cards
         hand_cards = [deck[card_labels.index(c)] for c in hand_str]
+        # create a hand object
         hand = Hand(cards=hand_cards, bid=int(bid), type=calculate_type(hand_cards))
         hands.append(hand)
     return hands
