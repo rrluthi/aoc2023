@@ -3,95 +3,80 @@ from enum import Enum
 from typing import List
 
 
-@dataclass
-class Card:
-    value: str
-    label: str
+class Node:
+    def __init__(self, value, left=None, right=None):
+        self.value = value
+        self.left = left
+        self.right = right
 
     def __repr__(self):
-        return self.label
-
-card_labels = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
-deck = [Card(hex(value).strip('0x'), label) for value, label in zip(range(2, 15), card_labels)]
+        return f"Node({self.value}, l={self.left}, r={self.right})"
 
 
-class HandType (Enum):
-    HIGH_CARD = 0
-    ONE_PAIR = 1
-    TWO_PAIR = 2
-    THREE_OF_A_KIND = 3
-    FULL_HOUSE = 4
-    FOUR_OF_A_KIND = 5
-    FIVE_OF_A_KIND = 6
+class Graph:
+    root: Node = None
+    nodes: dict = {}
 
-
-class Hand:
-    cards: List[Card] = []
-    bid: int
-    type: HandType = HandType.HIGH_CARD
-
-    def __init__(self, cards: List[Card], bid: int):
-        self.cards = cards
-        self.bid = bid
-        self.calculate_type()
+    def __init__(self, root: Node = None):
+        self.root = root
 
     def __repr__(self):
-        return f"Hand: value = {self.hand_value()}, type={self.type}, cards = {self.cards} | "
+        return f"Graph({self.nodes})"
 
-    def calculate_type(self):
-        counts = {}
-        for card in self.cards:
-            if card.label not in counts:
-                counts[card.label] = 0
-            counts[card.label] += 1
-        for card, value in sorted(counts.items(), key=lambda value: value[1]):
-            if value == 5:
-                self.type = HandType.FIVE_OF_A_KIND
-            elif value == 4:
-                self.type = HandType.FOUR_OF_A_KIND
-            elif value == 3:
-                if self.type == HandType.ONE_PAIR:
-                    self.type = HandType.FULL_HOUSE
-                else:
-                    self.type = HandType.THREE_OF_A_KIND
-            elif value == 2:
-                if self.type == HandType.THREE_OF_A_KIND:
-                    self.type = HandType.FULL_HOUSE
-                elif self.type == HandType.ONE_PAIR:
-                    self.type = HandType.TWO_PAIR
-                else:
-                    self.type = HandType.ONE_PAIR
-            else:
-                self.type = HandType.HIGH_CARD
+    def __getitem__(self, key):
+        if key in self.nodes:
+            return self.nodes[key]
+        raise KeyError(f"Node {key} not found")
 
-    def hand_value(self):
-        return int(str(self.type.value) + ''.join([card.value for card in self.cards]), 16)
+    def insert_node(self, node: Node):
+        if node.value in self.nodes:
+            raise ValueError(f"Node {node.value} already exists")
+        self.nodes[node.value] = node
+        if node.value == 'AAA':
+            print(node)
+            self.root = node
 
 
-def calculate_winnings(hands: List[Hand]) -> int:
-    hands.sort(key=lambda hand: hand.hand_value())
-    total = 0
-    for i, hand in enumerate(hands):
-        total += hand.bid * (i + 1)
-    return total
+def calculate_steps(graph, target, directions: str) -> List[Node]:
+    steps = []
+    current_node = graph.root
+    for direction in directions * 1000:
+        if current_node.value == target:
+            return steps
+        if direction == "L":
+            current_node = graph[current_node.left]
+        elif direction == "R":
+            current_node = graph[current_node.right]
+        else:
+            raise ValueError(f"Invalid direction: {direction}")
+        steps.append(current_node)
+
+    return steps
 
 
-def parse_input(f) -> List[Hand]:
-    hands = []
+def parse_input(f) -> (Node, str):
+    nodes = []
+    directions = f.readline().strip()
     for line in f:
         line = line.strip()
-        [hand_str, bid] = line.split(' ')
-        hand_cards = [deck[card_labels.index(c)] for c in hand_str]
-        hand = Hand(hand_cards, int(bid))
-        hands.append(hand)
-    return hands
+        if not line:
+            continue
+        if "=" in line:
+            key, value = line.split(" = ")
+            left, right = value.strip("()").split(", ")
+            nodes.append(Node(value=key, left=left, right=right))
+
+    graph = Graph()
+    for node in nodes:
+        graph.insert_node(node)
+    return graph, directions
 
 
 def main():
-    with open('input7.txt') as f:
-        hands = parse_input(f)
-        winnings = calculate_winnings(hands)
-        print(winnings)
+    with open('input8.txt') as f:
+        nodes, directions = parse_input(f)
+        steps = calculate_steps(nodes, 'ZZZ', directions)
+        print(len(steps))
 
 
 if __name__ == "__main__":

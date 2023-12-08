@@ -108,7 +108,7 @@ def parse_input(f) -> List[Hand]:
 
 
 def main():
-    with open('input7.txt') as f:
+    with open('../day8/input8.txt') as f:
         hands = parse_input(f)
         winnings = calculate_winnings(hands)
         print(winnings)
