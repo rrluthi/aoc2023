@@ -2,12 +2,13 @@ from itertools import combinations
 
 
 def get_galaxies(universe):
-    return [
-        (x, y)
-        for y, line in enumerate(universe)
-        for x, char in enumerate(line)
-        if char == "#"
-    ]
+    galaxies = []
+    for y, line in enumerate(universe):
+        for x, char in enumerate(line):
+            if char == "#":
+                galaxies.append((x, y))
+    return galaxies
+
 
 
 def expand_universe(universe):
@@ -44,8 +45,8 @@ def main():
         expanded_universe = expand_universe(universe)
         galaxy_coords = get_galaxies(expanded_universe)
         pairs = list(combinations(galaxy_coords, 2))
-        result = sum(calc_distance(pair) for pair in pairs)
-        print(f"{result=}")
+        distances = sum(calc_distance(pair) for pair in pairs)
+        print(distances)
 
 
 if __name__ == "__main__":

@@ -53,7 +53,7 @@ def main():
 
         galaxy_coords = get_galaxies(universe)
         pairs = list(combinations(galaxy_coords, 2))
-        print(f"{len(pairs)=}")
+        # print(f"{len(pairs)=}")
         expand = 1000_000 - 1
         distances = sum(calc_distance(pair, expanded_x, expanded_y, expand) for pair in pairs)
         print(distances)
