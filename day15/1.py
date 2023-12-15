@@ -7,7 +7,6 @@ def hash_step(value, step):
     value += char_code
     value *= 17
     value %= 256
-    # print(value)
     return hash_step(value, step[1:])
 
 
