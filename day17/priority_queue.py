@@ -2,7 +2,7 @@ from heapq import heappush, heappop
 import itertools
 
 
-class PriorityQ:
+class PriorityQueue:
     def __init__(self):
         self.pq = []
         self.entry_finder = {}

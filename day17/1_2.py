@@ -1,4 +1,4 @@
-from p_queue import PriorityQ
+from priority_queue import PriorityQueue
 from enum import Enum
 from dataclasses import dataclass
 from typing import NamedTuple, List
@@ -17,13 +17,19 @@ class Direction(Enum):
     BLANK = (0, 0)
 
 
-opposites = {
-    Direction.LEFT: Direction.RIGHT,
-    Direction.RIGHT: Direction.LEFT,
-    Direction.UP: Direction.DOWN,
-    Direction.DOWN: Direction.UP,
-    Direction.BLANK: None
-}
+def get_opposite(direction):
+    match direction:
+        case Direction.LEFT:
+            return Direction.RIGHT
+        case Direction.RIGHT:
+            return Direction.LEFT
+        case Direction.UP:
+            return Direction.DOWN
+        case Direction.DOWN:
+            return Direction.UP
+        case Direction.BLANK:
+            return None
+
 
 
 @dataclass
@@ -37,7 +43,7 @@ class Block:
 
 
 def find_min(grid: List[List[int]], min_steps: int, max_steps:int):
-    queue = PriorityQ()
+    queue = PriorityQueue()
     start = Block(Point(0, 0), Direction.BLANK, 0)
     queue.add_task(start, 0)
     w = len(grid[0])
@@ -54,13 +60,10 @@ def find_min(grid: List[List[int]], min_steps: int, max_steps:int):
             continue
         else:
             seen[(x, y, last_move, repeat)] = value
-        moves = [d for d in Direction if d != Direction.BLANK]
+        moves = [d for d in Direction if d != Direction.BLANK and d != get_opposite(last_move)]
         if repeat < min_steps and last_move != Direction.BLANK:
             moves = [last_move]
-        opposite = opposites[last_move]
         for move in moves:
-            if move == opposite:
-                continue
             if move == last_move:
                 if repeat == max_steps:
                     continue
