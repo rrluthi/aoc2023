@@ -31,7 +31,6 @@ def get_opposite(direction):
             return None
 
 
-
 @dataclass
 class Block:
     pos: Point
@@ -71,8 +70,7 @@ def find_min(grid: List[List[int]], min_steps: int, max_steps:int):
             else:
                 next_repeat = 1
             dx, dy = move.value
-            next_x = x + dx
-            next_y = y + dy
+            next_x, next_y = x + dx, y + dy
             if not (0 <= next_x < w and 0 <= next_y < h):
                 continue
             if (next_x, next_y, move, next_repeat) in seen:
